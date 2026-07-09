@@ -12,7 +12,7 @@
     "db:push": "drizzle-kit push",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "deploy": "pnpm db:migrate && sls deploy"
+    "deploy": "sls deploy"
   },
   "keywords": [],
   "author": "",

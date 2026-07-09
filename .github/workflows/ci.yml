@@ -6,6 +6,9 @@ on:
       - main
       - develop
 
+env:
+  DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
+
 jobs:
   validate:
     name: Lint, Typecheck, Test, and Build
