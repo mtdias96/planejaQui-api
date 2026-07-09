@@ -10,6 +10,22 @@ env:
   DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
 
 jobs:
+  branch-flow-check:
+    name: Validate Branch Flow (develop -> main)
+    runs-on: ubuntu-latest
+    if: github.base_ref == 'main'
+    steps:
+      - name: Verify source branch is develop
+        run: |
+          if [ "${{ github.head_ref }}" != "develop" ]; then
+            echo "❌ ERROR: Pull Requests to 'main' must originate from the 'develop' branch."
+            echo "Found source branch: '${{ github.head_ref }}'"
+            echo "Please open your Pull Request against the 'develop' branch first."
+            exit 1
+          else
+            echo "✅ SUCCESS: Pull Request originates from 'develop'."
+          fi
+
   validate:
     name: Lint, Typecheck, Test, and Build
     runs-on: ubuntu-latest
