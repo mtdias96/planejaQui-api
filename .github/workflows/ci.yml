@@ -60,4 +60,6 @@ jobs:
       - name: Verify Build (Serverless Package)
         run: pnpm exec sls package
         env:
+          AWS_ACCESS_KEY_ID: dummy-access-key-id
+          AWS_SECRET_ACCESS_KEY: dummy-secret-access-key
           SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
