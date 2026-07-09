@@ -1,5 +1,4 @@
-org: planejaqui
-app: planejaqui
+org: planejaqui 
 service: planejaqui-api
 
 provider:
