@@ -1,0 +1,9 @@
+hello:
+  handler: src/main/functions/hello.handle
+  events:
+    - httpApi:
+        path: /hello/{proxy+}
+        method: '*'
+    - httpApi:
+        path: /hello
+        method: '*'

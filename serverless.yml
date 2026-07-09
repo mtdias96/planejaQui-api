@@ -1,0 +1,21 @@
+org: planejaqui
+app: planejaqui
+service: planejaqui-api
+
+provider:
+  name: aws
+  runtime: nodejs24.x
+  region: sa-east-1
+  memorySize: 128
+  stage: ${opt:stage, 'dev'}
+  environment: ${file(./sls/config/env.yml)}
+
+package:
+  individually: true
+
+build:
+  esbuild:
+    configFile: ./esbuild.config.mjs
+
+functions:
+  - ${file(./sls/functions/hello.yml)}
