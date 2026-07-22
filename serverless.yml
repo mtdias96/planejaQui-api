@@ -18,3 +18,4 @@ build:
 
 functions:
   - ${file(./sls/functions/hello.yml)}
+  - ${file(./sls/functions/auth.yml)}
