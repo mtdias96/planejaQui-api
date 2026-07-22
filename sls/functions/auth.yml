@@ -1,0 +1,10 @@
+auth:
+  handler: src/main/functions/auth.handle
+  memorySize: 512
+  events:
+    - httpApi:
+        path: /auth/{proxy+}
+        method: '*'
+    - httpApi:
+        path: /auth
+        method: '*'

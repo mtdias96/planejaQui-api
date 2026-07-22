@@ -7,6 +7,7 @@ export default defineConfig({
     environment: 'node',
     env: {
       DATABASE_URL: 'postgresql://mock:mock@localhost:5432/mock',
+      JWT_SECRET: 'super_secret_key_at_least_32_characters_long_for_test',
     },
   },
   resolve: {
