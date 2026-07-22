@@ -8,8 +8,14 @@ import { Registry, IInjectableClass } from '@kernel/di/Registry.js';
 
 type HonoJsonStatus = Parameters<Context['json']>[1];
 
+export type HonoEnv = {
+  Variables: {
+    accountId?: string | null;
+  };
+};
+
 export function honoHttpAdapter(controllerImpl: IInjectableClass<Controller<TRouteType, unknown>>) {
-  return async (c: Context): Promise<Response> => {
+  return async (c: Context<HonoEnv>): Promise<Response> => {
     try {
       const controller = Registry.getInstance().resolve(controllerImpl);
 
@@ -25,14 +31,7 @@ export function honoHttpAdapter(controllerImpl: IInjectableClass<Controller<TRou
       const params = c.req.param();
       const queryParams = c.req.query();
 
-      const env = c.env as Record<string, unknown> | undefined;
-      const lambdaEvent = env?.event as Record<string, unknown> | undefined;
-      const requestContext = lambdaEvent?.requestContext as Record<string, unknown> | undefined;
-      const authorizer = requestContext?.authorizer as Record<string, unknown> | undefined;
-      const jwt = authorizer?.jwt as Record<string, unknown> | undefined;
-      const claims = jwt?.claims as Record<string, unknown> | undefined;
-
-      const accountId = (claims?.internalId as string | undefined) || null;
+      const accountId = c.get('accountId') ?? null;
 
       const response = await controller.execute({
         body,
