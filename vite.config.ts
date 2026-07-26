@@ -8,6 +8,8 @@ export default defineConfig({
     env: {
       DATABASE_URL: 'postgresql://mock:mock@localhost:5432/mock',
       JWT_SECRET: 'super_secret_key_at_least_32_characters_long_for_test',
+      PLUGGY_CLIENT_ID: 'test-client-id',
+      PLUGGY_CLIENT_SECRET: 'test-client-secret',
     },
   },
   resolve: {

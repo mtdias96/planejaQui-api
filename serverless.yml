@@ -20,3 +20,4 @@ functions:
   - ${file(./sls/functions/hello.yml)}
   - ${file(./sls/functions/auth.yml)}
   - ${file(./sls/functions/refreshTokensCleanup.yml)}
+  - ${file(./sls/functions/pluggy.yml)}

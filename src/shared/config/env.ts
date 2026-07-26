@@ -58,6 +58,8 @@ const schema = z.object({
   JWT_SECRET: z.string().min(32),
   ACCESS_TOKEN_TTL: z.preprocess(emptyToUndefined, z.string().default('15m')),
   REFRESH_TOKEN_TTL_DAYS: z.preprocess(emptyToUndefined, z.coerce.number().default(30)),
+  PLUGGY_CLIENT_ID: z.string().min(1),
+  PLUGGY_CLIENT_SECRET: z.string().min(1),
   REFRESH_TOKEN_GRACE_PERIOD_SECONDS: z.preprocess(emptyToUndefined, z.coerce.number().default(10)),
   CORS_ALLOWED_ORIGINS: z.preprocess(emptyToUndefined, z.string().optional()),
 }).transform((data) => {
