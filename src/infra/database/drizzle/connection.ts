@@ -3,10 +3,12 @@ import { drizzle, NeonHttpDatabase } from 'drizzle-orm/neon-http';
 import { AppConfig } from '@shared/config/AppConfig.js';
 import * as schema from './schemas/index.js';
 
+export type DbClient = NeonHttpDatabase<typeof schema>;
+
 export class DatabaseConnection {
   static inject = [AppConfig];
 
-  public readonly db: NeonHttpDatabase<typeof schema>;
+  public readonly db: DbClient;
 
   constructor(config: AppConfig) {
     const sql = neon(config.db.url);

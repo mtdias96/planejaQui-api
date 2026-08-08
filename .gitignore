@@ -7,6 +7,9 @@ dist/
 .serverless/
 .esbuild/
 
+
+task/*
+
 # Variáveis de ambiente e segredos (CRÍTICO)
 .env
 .env.local
@@ -16,6 +19,9 @@ dist/
 *.env
 *.pem
 *.key
+
+
+
 
 # Caches e Logs
 *.log
