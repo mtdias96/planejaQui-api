@@ -1,6 +1,6 @@
 import { Context } from 'hono';
 import { ZodError } from 'zod';
-import { Controller, TRouteType } from '@application/contracts/Controller.js';
+import { Controller } from '@application/contracts/Controller.js';
 import { ApplicationError } from '@application/errors/application/ApplicationError.js';
 import { ErrorCode } from '@application/errors/ErrorCode.js';
 import { HttpError } from '@application/errors/http/HttpError.js';
@@ -14,7 +14,7 @@ export type HonoEnv = {
   };
 };
 
-export function honoHttpAdapter(controllerImpl: IInjectableClass<Controller<TRouteType, unknown>>) {
+export function honoHttpAdapter(controllerImpl: IInjectableClass<Controller<'public', unknown>>) {
   return async (c: Context<HonoEnv>): Promise<Response> => {
     try {
       const controller = Registry.getInstance().resolve(controllerImpl);
@@ -38,7 +38,7 @@ export function honoHttpAdapter(controllerImpl: IInjectableClass<Controller<TRou
         params,
         queryParams,
         accountId,
-      } as Controller.Request<TRouteType>);
+      } as Controller.Request<'public'>);
 
       return c.json(response.body, response.statusCode as HonoJsonStatus);
 

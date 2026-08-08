@@ -4,6 +4,7 @@ import { UnitOfWork } from '@application/contracts/UnitOfWork.js';
 import { PasswordHasher } from '@infra/security/PasswordHasher.js';
 import { TokenService } from '@infra/security/TokenService.js';
 import { InvalidCredentialsError } from '@application/errors/InvalidCredentialsError.js';
+import { User } from '@application/entities/User.js';
 import crypto from 'node:crypto';
 
 const DUMMY_HASH = '$argon2id$v=19$m=19456,t=2,p=1$c29tZXNhbHQ$dGVzdHBhc3N3b3Jk';
@@ -28,15 +29,17 @@ export class SignInUseCase {
   async execute(input: SignInUseCase.Input): Promise<SignInUseCase.Output> {
     return this.unitOfWork.runInTransaction(async (tx) => {
       const normalizedEmail = input.email.toLowerCase().trim();
-      const user = await this.usersRepository.findByEmail(normalizedEmail, tx);
+      const rawUser = await this.usersRepository.findByEmail(normalizedEmail, tx);
 
-      if (!user) {
+      if (!rawUser) {
         // Timing attack protection
         await this.passwordHasher.verify(DUMMY_HASH, input.password);
         throw new InvalidCredentialsError();
       }
 
-      if (user.lockedUntil && user.lockedUntil > new Date()) {
+      const user = new User(rawUser);
+
+      if (user.isLocked()) {
         throw new InvalidCredentialsError();
       }
 

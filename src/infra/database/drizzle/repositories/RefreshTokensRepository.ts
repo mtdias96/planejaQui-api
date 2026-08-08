@@ -2,7 +2,7 @@ import { DatabaseConnection, DbClient } from '../connection.js';
 import { DbTransaction } from '../DrizzleUnitOfWork.js';
 import { TransactionContext } from '@application/contracts/UnitOfWork.js';
 import { refreshTokens, RefreshToken, NewRefreshToken } from '../schemas/refreshTokens.js';
-import { eq } from 'drizzle-orm';
+import { eq, lt } from 'drizzle-orm';
 
 export class RefreshTokensRepository {
   static inject = [DatabaseConnection];
@@ -31,6 +31,15 @@ export class RefreshTokensRepository {
     return result ?? null;
   }
 
+  async findById(id: string, tx?: TransactionContext): Promise<RefreshToken | null> {
+    const db = this.getDb(tx);
+    const [result] = await db
+      .select()
+      .from(refreshTokens)
+      .where(eq(refreshTokens.id, id));
+    return result ?? null;
+  }
+
   async revoke(id: string, replacedByTokenId?: string, tx?: TransactionContext): Promise<void> {
     const db = this.getDb(tx);
     await db
@@ -50,5 +59,13 @@ export class RefreshTokensRepository {
         revokedAt: new Date(),
       })
       .where(eq(refreshTokens.familyId, familyId));
+  }
+
+  async deleteExpiredBefore(cutoff: Date, tx?: TransactionContext): Promise<number> {
+    const db = this.getDb(tx);
+    const result = await db
+      .delete(refreshTokens)
+      .where(lt(refreshTokens.expiresAt, cutoff));
+    return result.rowCount ?? 0;
   }
 }
