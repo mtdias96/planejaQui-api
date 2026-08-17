@@ -15,6 +15,27 @@
       "when": 1783888498170,
       "tag": "0001_clever_sugar_man",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1786918747739,
+      "tag": "0002_workable_chat",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1786920146396,
+      "tag": "0003_parallel_zodiak",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1786921212718,
+      "tag": "0004_bitter_mulholland_black",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,1 @@
+ALTER TABLE "pluggy_transactions" ADD COLUMN "category_id" text;
