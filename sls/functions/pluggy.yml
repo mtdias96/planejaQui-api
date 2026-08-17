@@ -1,0 +1,10 @@
+pluggy:
+  handler: src/main/functions/pluggy.handle
+  memorySize: 512
+  events:
+    - httpApi:
+        path: /pluggy/{proxy+}
+        method: '*'
+    - httpApi:
+        path: /pluggy
+        method: '*'

@@ -1,13 +1,16 @@
 import { env, parseEnv } from './env.js';
 
 export class AppConfig {
+  readonly nodeEnv: string;
   readonly db: AppConfig.Database;
   readonly auth: AppConfig.Auth;
   readonly cors: AppConfig.Cors;
+  readonly pluggy: AppConfig.Pluggy;
 
   constructor(customEnv?: Record<string, string | undefined>) {
     const currentEnv = customEnv ? parseEnv(customEnv) : env;
 
+    this.nodeEnv = currentEnv.NODE_ENV;
     this.db = {
       url: currentEnv.DATABASE_URL,
     };
@@ -20,6 +23,17 @@ export class AppConfig {
     this.cors = {
       allowedOrigins: currentEnv.CORS_ALLOWED_ORIGINS_PARSED,
     };
+    this.pluggy = {
+      clientId: currentEnv.PLUGGY_CLIENT_ID,
+      clientSecret: currentEnv.PLUGGY_CLIENT_SECRET,
+      baseUrl: currentEnv.PLUGGY_BASE_URL.replace(/\/+$/, ''),
+      webhookUrl: currentEnv.PLUGGY_WEBHOOK_URL,
+      webhookSecret: currentEnv.PLUGGY_WEBHOOK_SECRET,
+    };
+  }
+
+  get isDevelopment(): boolean {
+    return this.nodeEnv === 'development';
   }
 }
 
@@ -37,5 +51,13 @@ export namespace AppConfig {
 
   export type Cors = {
     allowedOrigins: string[];
+  };
+
+  export type Pluggy = {
+    clientId: string;
+    clientSecret: string;
+    baseUrl: string;
+    webhookUrl?: string;
+    webhookSecret?: string;
   };
 }
