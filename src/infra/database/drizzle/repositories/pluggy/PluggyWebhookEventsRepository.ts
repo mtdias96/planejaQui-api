@@ -1,11 +1,11 @@
-import { DatabaseConnection, DbClient } from '../connection.js';
-import { DbTransaction } from '../DrizzleUnitOfWork.js';
+import { DatabaseConnection, DbClient } from '../../connection.js';
+import { DbTransaction } from '../../DrizzleUnitOfWork.js';
 import { TransactionContext } from '@application/contracts/UnitOfWork.js';
 import {
   pluggyWebhookEvents,
   PluggyWebhookEvent,
   NewPluggyWebhookEvent,
-} from '../schemas/pluggyWebhookEvents.js';
+} from '../../schemas/pluggyWebhookEvents.js';
 
 export class PluggyWebhookEventsRepository {
   static inject = [DatabaseConnection];

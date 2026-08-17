@@ -1,6 +1,6 @@
 import { PluggyGateway } from '@infra/gateways/pluggy/PluggyGateway.js';
-import { PluggyAccountsRepository } from '@infra/database/drizzle/repositories/PluggyAccountsRepository.js';
-import { PluggyTransactionsRepository } from '@infra/database/drizzle/repositories/PluggyTransactionsRepository.js';
+import { PluggyAccountsRepository } from '@infra/database/drizzle/repositories/pluggy/PluggyAccountsRepository.js';
+import { PluggyTransactionsRepository } from '@infra/database/drizzle/repositories/pluggy/PluggyTransactionsRepository.js';
 
 export class ListTransactionsUseCase {
   static inject = [

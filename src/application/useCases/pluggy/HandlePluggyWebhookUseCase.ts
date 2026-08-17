@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { PluggyGateway } from '@infra/gateways/pluggy/PluggyGateway.js';
-import { PluggyWebhookEventsRepository } from '@infra/database/drizzle/repositories/PluggyWebhookEventsRepository.js';
-import { PluggyItemsRepository } from '@infra/database/drizzle/repositories/PluggyItemsRepository.js';
+import { PluggyWebhookEventsRepository } from '@infra/database/drizzle/repositories/pluggy/PluggyWebhookEventsRepository.js';
+import { PluggyItemsRepository } from '@infra/database/drizzle/repositories/pluggy/PluggyItemsRepository.js';
 import { UsersRepository } from '@infra/database/drizzle/repositories/UsersRepository.js';
 
 const uuidSchema = z.uuid();

@@ -1,8 +1,8 @@
 import { eq } from 'drizzle-orm';
-import { DatabaseConnection, DbClient } from '../connection.js';
-import { DbTransaction } from '../DrizzleUnitOfWork.js';
+import { DatabaseConnection, DbClient } from '../../connection.js';
+import { DbTransaction } from '../../DrizzleUnitOfWork.js';
 import { TransactionContext } from '@application/contracts/UnitOfWork.js';
-import { pluggyItems, PluggyItem, NewPluggyItem } from '../schemas/pluggyItems.js';
+import { pluggyItems, PluggyItem, NewPluggyItem } from '../../schemas/pluggyItems.js';
 
 export class PluggyItemsRepository {
   static inject = [DatabaseConnection];

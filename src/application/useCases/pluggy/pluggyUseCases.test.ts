@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { AppConfig } from '@shared/config/AppConfig.js';
 import { PluggyGateway } from '@infra/gateways/pluggy/PluggyGateway.js';
-import { PluggyItemsRepository } from '@infra/database/drizzle/repositories/PluggyItemsRepository.js';
-import { PluggyAccountsRepository } from '@infra/database/drizzle/repositories/PluggyAccountsRepository.js';
-import { PluggyWebhookEventsRepository } from '@infra/database/drizzle/repositories/PluggyWebhookEventsRepository.js';
+import { PluggyItemsRepository } from '@infra/database/drizzle/repositories/pluggy/PluggyItemsRepository.js';
+import { PluggyAccountsRepository } from '@infra/database/drizzle/repositories/pluggy/PluggyAccountsRepository.js';
+import { PluggyWebhookEventsRepository } from '@infra/database/drizzle/repositories/pluggy/PluggyWebhookEventsRepository.js';
 import { UsersRepository } from '@infra/database/drizzle/repositories/UsersRepository.js';
-import { PluggyTransactionsRepository } from '@infra/database/drizzle/repositories/PluggyTransactionsRepository.js';
+import { PluggyTransactionsRepository } from '@infra/database/drizzle/repositories/pluggy/PluggyTransactionsRepository.js';
 import { PluggyItem, NewPluggyItem } from '@infra/database/drizzle/schemas/pluggyItems.js';
 import { PluggyAccount, NewPluggyAccount } from '@infra/database/drizzle/schemas/pluggyAccounts.js';
 import { PluggyTransaction, NewPluggyTransaction } from '@infra/database/drizzle/schemas/pluggyTransactions.js';
