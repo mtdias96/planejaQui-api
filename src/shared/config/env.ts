@@ -60,6 +60,12 @@ const schema = z.object({
   REFRESH_TOKEN_TTL_DAYS: z.preprocess(emptyToUndefined, z.coerce.number().default(30)),
   PLUGGY_CLIENT_ID: z.string().min(1),
   PLUGGY_CLIENT_SECRET: z.string().min(1),
+  PLUGGY_BASE_URL: z.preprocess(emptyToUndefined, z.string().default('https://api.pluggy.ai')),
+  // Optional: without it the connect token simply carries no per-item webhook.
+  PLUGGY_WEBHOOK_URL: z.preprocess(emptyToUndefined, z.string().optional()),
+  // Optional here so CI and existing deploys keep booting; the webhook
+  // middleware fails closed when it is missing.
+  PLUGGY_WEBHOOK_SECRET: z.preprocess(emptyToUndefined, z.string().optional()),
   REFRESH_TOKEN_GRACE_PERIOD_SECONDS: z.preprocess(emptyToUndefined, z.coerce.number().default(10)),
   CORS_ALLOWED_ORIGINS: z.preprocess(emptyToUndefined, z.string().optional()),
 }).transform((data) => {

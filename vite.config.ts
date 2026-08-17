@@ -10,6 +10,8 @@ export default defineConfig({
       JWT_SECRET: 'super_secret_key_at_least_32_characters_long_for_test',
       PLUGGY_CLIENT_ID: 'test-client-id',
       PLUGGY_CLIENT_SECRET: 'test-client-secret',
+      PLUGGY_BASE_URL: 'https://api.pluggy.test',
+      PLUGGY_WEBHOOK_URL: 'https://api.planejaqui.test/pluggy/webhook',
     },
   },
   resolve: {

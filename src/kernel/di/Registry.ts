@@ -1,8 +1,6 @@
 import { Constructor } from '@shared/types/Constructor.js';
 import { UnitOfWork } from '@application/contracts/UnitOfWork.js';
 import { DrizzleUnitOfWork } from '@infra/database/drizzle/DrizzleUnitOfWork.js';
-import { PluggyGateway } from '@application/contracts/PluggyGateway.js';
-import { PluggyHttpGateway } from '@infra/gateways/PluggyHttpGateway.js';
 
 export type AbstractConstructor<T = unknown> = abstract new (...args: any[]) => T;
 export type ConcreteConstructor<T = unknown> = Constructor<T>;
@@ -29,7 +27,6 @@ export class Registry {
 
   private registerDefaultBindings(): void {
     this.bind(UnitOfWork, DrizzleUnitOfWork);
-    this.bind(PluggyGateway, PluggyHttpGateway);
   }
 
   bind<T>(abstractClass: IInjectableClass<T>, concreteClass: IInjectableClass<T>): void {
