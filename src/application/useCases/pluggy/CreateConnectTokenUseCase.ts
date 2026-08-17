@@ -1,13 +1,18 @@
-import { PluggyGateway } from '@application/contracts/PluggyGateway.js';
+import { AppConfig } from '@shared/config/AppConfig.js';
+import { PluggyGateway } from '@infra/gateways/pluggy/PluggyGateway.js';
 
 export class CreateConnectTokenUseCase {
-  static inject = [PluggyGateway];
+  static inject = [PluggyGateway, AppConfig];
 
-  constructor(private readonly pluggyGateway: PluggyGateway) {}
+  constructor(
+    private readonly pluggyGateway: PluggyGateway,
+    private readonly config: AppConfig,
+  ) {}
 
   async execute(input: CreateConnectTokenUseCase.Input): Promise<CreateConnectTokenUseCase.Output> {
     const { accessToken } = await this.pluggyGateway.createConnectToken({
       clientUserId: input.clientUserId,
+      webhookUrl: this.config.pluggy.webhookUrl,
     });
 
     return { accessToken };
