@@ -9,7 +9,12 @@ export const pluggyWebhookEvents = pgTable('pluggy_webhook_events', {
   clientUserId: text('client_user_id'),
   triggeredBy: text('triggered_by'),
   payload: jsonb('payload').notNull(),
-  receivedAt: timestamp('received_at').defaultNow().notNull(),
+  // Estado de processamento: 'pending' marca apenas a entrega, 'done' marca a ingestão concluída.
+  // O dedupe só descarta entregas cujo processamento já terminou, para que o retry da Pluggy
+  // consiga retomar um evento que morreu no meio (timeout, restart, deploy).
+  processingStatus: text('processing_status').default('pending').notNull(),
+  processedAt: timestamp('processed_at', { withTimezone: true }),
+  receivedAt: timestamp('received_at', { withTimezone: true }).defaultNow().notNull(),
 }, (table) => [
   index('pluggy_webhook_events_item_idx').on(table.pluggyItemId),
 ]);

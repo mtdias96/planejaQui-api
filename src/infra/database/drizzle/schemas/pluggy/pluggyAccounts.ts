@@ -15,8 +15,10 @@ export const pluggyAccounts = pgTable('pluggy_accounts', {
   owner: text('owner'),
   taxNumber: text('tax_number'),
   raw: jsonb('raw').notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  // Marca d'água da ingestão incremental: até quando as transações desta conta já foram sincronizadas
+  transactionsSyncedThrough: timestamp('transactions_synced_through', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
 }, (table) => [
   index('pluggy_accounts_item_id_idx').on(table.itemId),
 ]);
