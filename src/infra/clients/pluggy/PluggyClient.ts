@@ -91,20 +91,28 @@ export class PluggyClient {
   ): Promise<PluggyClient.Response> {
     const hasBody = body !== undefined;
 
-    const response = await fetch(url, {
-      method,
-      headers: {
-        ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
-        ...headers,
-      },
-      body: hasBody ? JSON.stringify(body) : undefined,
-    });
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: {
+          ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
+          ...headers,
+        },
+        body: hasBody ? JSON.stringify(body) : undefined,
+        signal: AbortSignal.timeout(15_000),
+      });
 
-    return {
-      status: response.status,
-      headers: response.headers,
-      body: await this.parseBody(response),
-    };
+      return {
+        status: response.status,
+        headers: response.headers,
+        body: await this.parseBody(response),
+      };
+    } catch (error: unknown) {
+      if (error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError')) {
+        throw new PluggyGatewayError('Pluggy request timed out.');
+      }
+      throw error;
+    }
   }
 
   private async parseBody(response: Response): Promise<unknown> {

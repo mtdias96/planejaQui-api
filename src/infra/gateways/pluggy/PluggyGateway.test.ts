@@ -174,8 +174,8 @@ describe('PluggyGateway', () => {
 
       expect(transactions.map(tx => tx.id)).toEqual(['tx-1', 'tx-2']);
       expect(client.requests).toHaveLength(2);
-      expect(client.requests[0].query).toEqual({ accountId: 'acc-1', after: undefined });
-      expect(client.requests[1].query).toEqual({ accountId: 'acc-1', after: 'cursor-page-2' });
+      expect(client.requests[0].query).toEqual({ accountId: 'acc-1', pageSize: '500', after: undefined });
+      expect(client.requests[1].query).toEqual({ accountId: 'acc-1', pageSize: '500', after: 'cursor-page-2' });
     });
 
     it('extracts cursor from full URL or relative path in next', async () => {
@@ -187,10 +187,10 @@ describe('PluggyGateway', () => {
       const { transactions } = await gateway.listTransactions({ accountId: 'acc-1' });
 
       expect(transactions.map(tx => tx.id)).toEqual(['tx-1', 'tx-2']);
-      expect(client.requests[1].query).toEqual({ accountId: 'acc-1', after: 'cursor-from-full-url' });
+      expect(client.requests[1].query).toEqual({ accountId: 'acc-1', pageSize: '500', after: 'cursor-from-full-url' });
     });
 
-    it('stops pagination when MAX_PAGES is reached even if next is present', async () => {
+    it('stops pagination and sets truncated: true when MAX_PAGES is reached even if next is present', async () => {
       for (let i = 0; i < 15; i++) {
         client.enqueue({
           results: [transactionDTO({ id: `tx-${i}` })],
@@ -198,10 +198,11 @@ describe('PluggyGateway', () => {
         });
       }
 
-      const { transactions } = await gateway.listTransactions({ accountId: 'acc-1' });
+      const result = await gateway.listTransactions({ accountId: 'acc-1' });
 
       expect(client.requests).toHaveLength(10);
-      expect(transactions).toHaveLength(10);
+      expect(result.transactions).toHaveLength(10);
+      expect(result.truncated).toBe(true);
     });
   });
 

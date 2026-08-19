@@ -63,16 +63,23 @@ export class PluggyGateway {
 
   async listTransactions({
     accountId,
+    from,
+    to,
+    pageSize = 500,
   }: PluggyGateway.ListTransactionsParams): Promise<PluggyGateway.ListTransactionsResult> {
     const transactions: PluggyGateway.Transaction[] = [];
     let cursor: string | undefined;
     let pageCount = 0;
+    let truncated = false;
 
     do {
       const response = await this.client.get<PluggyGateway.RawCursoredResponse<PluggyGateway.RawTransaction>>(
         '/v2/transactions',
         {
           accountId,
+          pageSize: String(pageSize),
+          ...(from ? { from } : {}),
+          ...(to ? { to } : {}),
           ...(cursor ? { after: cursor } : {}),
         },
       );
@@ -88,15 +95,19 @@ export class PluggyGateway {
           categoryId: raw.categoryId ?? null,
           type: raw.type,
           status: raw.status,
+          balance: typeof raw.balance === 'number' ? raw.balance : null,
           raw,
         });
       }
 
       cursor = this.extractCursor(response.next);
       pageCount += 1;
+      if (cursor && pageCount >= PluggyGateway.MAX_PAGES) {
+        truncated = true;
+      }
     } while (cursor && pageCount < PluggyGateway.MAX_PAGES);
 
-    return { transactions };
+    return { transactions, ...(truncated ? { truncated: true } : {}) };
   }
 
   async getItem({
@@ -161,6 +172,9 @@ export namespace PluggyGateway {
 
   export type ListTransactionsParams = {
     accountId: string;
+    from?: string;
+    to?: string;
+    pageSize?: number;
   };
 
   export type Transaction = {
@@ -173,11 +187,13 @@ export namespace PluggyGateway {
     categoryId: string | null;
     type: string;
     status: string;
+    balance?: number | null;
     raw: Record<string, unknown>;
   };
 
   export type ListTransactionsResult = {
     transactions: Transaction[];
+    truncated?: boolean;
   };
 
   export type GetItemParams = {
@@ -237,6 +253,7 @@ export namespace PluggyGateway {
     categoryId?: string | null;
     type: string;
     status: string;
+    balance?: number | null;
   } & Record<string, unknown>;
 
   export type RawItem = {
