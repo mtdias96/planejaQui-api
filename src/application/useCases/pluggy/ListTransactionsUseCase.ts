@@ -1,60 +1,58 @@
-import { PluggyGateway } from '@infra/gateways/pluggy/PluggyGateway.js';
 import { PluggyAccountsRepository } from '@infra/database/drizzle/repositories/pluggy/PluggyAccountsRepository.js';
 import { PluggyTransactionsRepository } from '@infra/database/drizzle/repositories/pluggy/PluggyTransactionsRepository.js';
+import { SyncAccountTransactionsService } from '@application/services/pluggy/SyncAccountTransactionsService.js';
+import type {
+  IPluggyTransactionsRepository,
+  TransactionStatusFilter,
+} from '@application/contracts/repositories/IPluggyTransactionsRepository.js';
 
 export class ListTransactionsUseCase {
   static inject = [
-    PluggyGateway,
+    SyncAccountTransactionsService,
     PluggyAccountsRepository,
     PluggyTransactionsRepository,
   ];
 
   constructor(
-    private readonly pluggyGateway: PluggyGateway,
+    private readonly syncAccountTransactionsService: SyncAccountTransactionsService,
     private readonly pluggyAccountsRepository: PluggyAccountsRepository,
-    private readonly pluggyTransactionsRepository: PluggyTransactionsRepository,
+    private readonly pluggyTransactionsRepository: IPluggyTransactionsRepository,
   ) {}
 
   async execute(input: ListTransactionsUseCase.Input): Promise<ListTransactionsUseCase.Output> {
-    const accounts = await this.pluggyAccountsRepository.findByUserId(input.userId);
+    const fromDate = input.from ? new Date(input.from) : undefined;
+    const toDate = input.to ? new Date(input.to) : undefined;
 
-    const accountsToSync = input.accountId
-      ? accounts.filter(
-          account => account.id === input.accountId || account.pluggyAccountId === input.accountId,
-        )
-      : accounts;
+    let sync: SyncAccountTransactionsService.SyncAccountsResult | null = null;
 
-    for (const account of accountsToSync) {
-      try {
-        const { transactions: fetched } = await this.pluggyGateway.listTransactions({
-          accountId: account.pluggyAccountId,
-        });
+    if (input.sync === true) {
+      const accounts = await this.pluggyAccountsRepository.findByUserId(input.userId);
 
-        await this.pluggyTransactionsRepository.upsertMany(
-          fetched.map(tx => ({
-            accountId: account.id,
-            pluggyTransactionId: tx.id,
-            description: tx.description,
-            amount: String(tx.amount),
-            currencyCode: tx.currencyCode ?? account.currencyCode ?? 'BRL',
-            date: tx.date,
-            category: tx.category,
-            categoryId: tx.categoryId,
-            type: tx.type,
-            status: tx.status,
-            raw: tx.raw,
-          })),
-        );
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error(`[pluggy] failed to sync transactions for account ${account.id}:`, error);
-      }
+      const accountsToSync = input.accountId
+        ? accounts.filter(
+            account => account.id === input.accountId || account.pluggyAccountId === input.accountId,
+          )
+        : accounts;
+
+      sync = await this.syncAccountTransactionsService.syncAccounts({
+        accounts: accountsToSync,
+        from: fromDate,
+        to: toDate,
+      });
     }
 
-    const transactions = await this.pluggyTransactionsRepository.findByUserAccounts(
-      input.userId,
-      input.accountId,
-    );
+    const limit = input.limit ?? 50;
+    const offset = input.offset ?? 0;
+
+    const { transactions, total } = await this.pluggyTransactionsRepository.findByUserAccounts({
+      userId: input.userId,
+      accountId: input.accountId,
+      from: fromDate,
+      to: toDate,
+      status: input.status ?? 'POSTED',
+      limit,
+      offset,
+    });
 
     return {
       transactions: transactions.map(tx => ({
@@ -69,9 +67,23 @@ export class ListTransactionsUseCase {
         categoryId: tx.categoryId,
         type: tx.type,
         status: tx.status,
+        balance: tx.balance === null ? null : Number(tx.balance),
         accountName: tx.accountName,
         connectorName: tx.connectorName,
       })),
+      pagination: {
+        total,
+        limit,
+        offset,
+        hasMore: offset + transactions.length < total,
+      },
+      ...(sync && sync.syncErrors.length > 0
+        ? { syncErrors: sync.syncErrors, partialSyncFailure: true }
+        : {}),
+      ...(sync && sync.truncatedAccounts.length > 0
+        ? { truncatedAccounts: sync.truncatedAccounts, historyIncomplete: true }
+        : {}),
+      ...(sync?.rateLimited ? { rateLimited: true, retryAfter: sync.retryAfterSeconds } : {}),
     };
   }
 }
@@ -80,6 +92,12 @@ export namespace ListTransactionsUseCase {
   export type Input = {
     userId: string;
     accountId?: string;
+    from?: Date | string;
+    to?: Date | string;
+    status?: TransactionStatusFilter;
+    limit?: number;
+    offset?: number;
+    sync?: boolean;
   };
 
   export type Transaction = {
@@ -94,11 +112,26 @@ export namespace ListTransactionsUseCase {
     categoryId: string | null;
     type: string | null;
     status: string | null;
+    balance: number | null;
     accountName: string | null;
     connectorName: string | null;
   };
 
+  export type Pagination = {
+    total: number;
+    limit: number;
+    offset: number;
+    hasMore: boolean;
+  };
+
   export type Output = {
     transactions: Transaction[];
+    pagination: Pagination;
+    partialSyncFailure?: boolean;
+    syncErrors?: { accountId: string; error: string }[];
+    truncatedAccounts?: string[];
+    historyIncomplete?: boolean;
+    rateLimited?: boolean;
+    retryAfter?: number;
   };
 }
