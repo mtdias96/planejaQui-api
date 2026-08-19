@@ -3,7 +3,7 @@ import { RefreshTokensRepository } from '@infra/database/drizzle/repositories/Re
 import { UnitOfWork } from '@application/contracts/UnitOfWork.js';
 import { PasswordHasher } from '@infra/security/PasswordHasher.js';
 import { TokenService } from '@infra/security/TokenService.js';
-import { EmailAlreadyInUseError } from '@application/errors/EmailAlreadyInUseError.js';
+import { EmailAlreadyInUseError } from '@application/errors/auth/EmailAlreadyInUseError.js';
 import crypto from 'node:crypto';
 
 export class SignUpUseCase {

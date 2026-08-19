@@ -9,12 +9,12 @@ import { PurgeExpiredRefreshTokensUseCase } from './PurgeExpiredRefreshTokensUse
 import { PasswordHasher } from '@infra/security/PasswordHasher.js';
 import { TokenService } from '@infra/security/TokenService.js';
 import { AppConfig } from '@shared/config/AppConfig.js';
-import { User, NewUser } from '@infra/database/drizzle/schemas/users.js';
-import { RefreshToken, NewRefreshToken } from '@infra/database/drizzle/schemas/refreshTokens.js';
-import { EmailAlreadyInUseError } from '@application/errors/EmailAlreadyInUseError.js';
-import { InvalidCredentialsError } from '@application/errors/InvalidCredentialsError.js';
-import { InvalidRefreshTokenError } from '@application/errors/InvalidRefreshTokenError.js';
-import { UserNotFoundError } from '@application/errors/UserNotFoundError.js';
+import { User, NewUser } from '@infra/database/drizzle/schemas/auth/users.js';
+import { RefreshToken, NewRefreshToken } from '@infra/database/drizzle/schemas/auth/refreshTokens.js';
+import { EmailAlreadyInUseError } from '@application/errors/auth/EmailAlreadyInUseError.js';
+import { InvalidCredentialsError } from '@application/errors/auth/InvalidCredentialsError.js';
+import { InvalidRefreshTokenError } from '@application/errors/auth/InvalidRefreshTokenError.js';
+import { UserNotFoundError } from '@application/errors/auth/UserNotFoundError.js';
 
 class FakeUsersRepository {
   public usersList: User[] = [];

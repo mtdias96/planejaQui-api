@@ -2,8 +2,8 @@ import { eq, sql, getTableColumns } from 'drizzle-orm';
 import { DatabaseConnection, DbClient } from '../../connection.js';
 import { DbTransaction } from '../../DrizzleUnitOfWork.js';
 import { TransactionContext } from '@application/contracts/UnitOfWork.js';
-import { pluggyAccounts, PluggyAccount, NewPluggyAccount } from '../../schemas/pluggyAccounts.js';
-import { pluggyItems } from '../../schemas/pluggyItems.js';
+import { pluggyAccounts, PluggyAccount, NewPluggyAccount } from '../../schemas/pluggy/pluggyAccounts.js';
+import { pluggyItems } from '../../schemas/pluggy/pluggyItems.js';
 
 export class PluggyAccountsRepository {
   static inject = [DatabaseConnection];

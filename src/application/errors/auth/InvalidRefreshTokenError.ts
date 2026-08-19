@@ -1,5 +1,5 @@
-import { HttpError } from './http/HttpError.js';
-import { ErrorCode } from './ErrorCode.js';
+import { HttpError } from '../http/HttpError.js';
+import { ErrorCode } from '../ErrorCode.js';
 
 export class InvalidRefreshTokenError extends HttpError {
   constructor() {

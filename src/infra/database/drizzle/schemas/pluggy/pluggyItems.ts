@@ -1,5 +1,5 @@
 import { pgTable, uuid, text, timestamp, integer, index } from 'drizzle-orm/pg-core';
-import { users } from './users.js';
+import { users } from '../auth/users.js';
 
 // Mapeia conexões bancárias da Pluggy (Items) para os usuários do sistema
 export const pluggyItems = pgTable('pluggy_items', {

@@ -1,6 +1,6 @@
 import { AppConfig } from '@shared/config/AppConfig.js';
-import { PluggyGatewayError } from '@application/errors/PluggyGatewayError.js';
-import { PluggyRateLimitError } from '@application/errors/PluggyRateLimitError.js';
+import { PluggyGatewayError } from '@application/errors/pluggy/PluggyGatewayError.js';
+import { PluggyRateLimitError } from '@application/errors/pluggy/PluggyRateLimitError.js';
 
 // Margem de segurança de 60s antes da expiração do JWT para evitar expiração durante o trânsito
 const API_KEY_SAFETY_WINDOW_MS = 60_000;

@@ -1,5 +1,5 @@
 import { UsersRepository } from '@infra/database/drizzle/repositories/UsersRepository.js';
-import { UserNotFoundError } from '@application/errors/UserNotFoundError.js';
+import { UserNotFoundError } from '@application/errors/auth/UserNotFoundError.js';
 import { User } from '@application/entities/User.js';
 
 export class GetMeUseCase {

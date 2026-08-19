@@ -1,5 +1,5 @@
-import { ErrorCode } from './ErrorCode.js';
-import { HttpError } from './http/HttpError.js';
+import { ErrorCode } from '../ErrorCode.js';
+import { HttpError } from '../http/HttpError.js';
 
 export class PluggyRateLimitError extends HttpError {
   constructor(readonly retryAfterSeconds?: number) {

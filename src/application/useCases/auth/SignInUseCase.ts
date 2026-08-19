@@ -3,7 +3,7 @@ import { RefreshTokensRepository } from '@infra/database/drizzle/repositories/Re
 import { UnitOfWork } from '@application/contracts/UnitOfWork.js';
 import { PasswordHasher } from '@infra/security/PasswordHasher.js';
 import { TokenService } from '@infra/security/TokenService.js';
-import { InvalidCredentialsError } from '@application/errors/InvalidCredentialsError.js';
+import { InvalidCredentialsError } from '@application/errors/auth/InvalidCredentialsError.js';
 import { User } from '@application/entities/User.js';
 import crypto from 'node:crypto';
 

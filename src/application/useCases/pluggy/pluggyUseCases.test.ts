@@ -6,10 +6,10 @@ import { PluggyAccountsRepository } from '@infra/database/drizzle/repositories/p
 import { PluggyWebhookEventsRepository } from '@infra/database/drizzle/repositories/pluggy/PluggyWebhookEventsRepository.js';
 import { UsersRepository } from '@infra/database/drizzle/repositories/UsersRepository.js';
 import { PluggyTransactionsRepository } from '@infra/database/drizzle/repositories/pluggy/PluggyTransactionsRepository.js';
-import { PluggyItem, NewPluggyItem } from '@infra/database/drizzle/schemas/pluggyItems.js';
-import { PluggyAccount, NewPluggyAccount } from '@infra/database/drizzle/schemas/pluggyAccounts.js';
-import { PluggyTransaction, NewPluggyTransaction } from '@infra/database/drizzle/schemas/pluggyTransactions.js';
-import { NewPluggyWebhookEvent } from '@infra/database/drizzle/schemas/pluggyWebhookEvents.js';
+import { PluggyItem, NewPluggyItem } from '@infra/database/drizzle/schemas/pluggy/pluggyItems.js';
+import { PluggyAccount, NewPluggyAccount } from '@infra/database/drizzle/schemas/pluggy/pluggyAccounts.js';
+import { PluggyTransaction, NewPluggyTransaction } from '@infra/database/drizzle/schemas/pluggy/pluggyTransactions.js';
+import { NewPluggyWebhookEvent } from '@infra/database/drizzle/schemas/pluggy/pluggyWebhookEvents.js';
 import { CreateConnectTokenUseCase } from './CreateConnectTokenUseCase.js';
 import { ListAccountsUseCase } from './ListAccountsUseCase.js';
 import { ListTransactionsUseCase } from './ListTransactionsUseCase.js';

@@ -1,7 +1,7 @@
 import { DatabaseConnection, DbClient } from '../connection.js';
 import { DbTransaction } from '../DrizzleUnitOfWork.js';
 import { TransactionContext } from '@application/contracts/UnitOfWork.js';
-import { users, User, NewUser } from '../schemas/users.js';
+import { users, User, NewUser } from '../schemas/auth/users.js';
 import { eq, sql } from 'drizzle-orm';
 
 export class UsersRepository {

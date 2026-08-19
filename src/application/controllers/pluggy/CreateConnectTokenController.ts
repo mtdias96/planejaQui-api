@@ -11,8 +11,6 @@ export class CreateConnectTokenController extends Controller<'private', CreateCo
   protected override async handle(
     request: Controller.Request<'private'>,
   ): Promise<Controller.Response<CreateConnectTokenController.Response>> {
-    // The connect token is bound to the authenticated user, taken from the
-    // access token — never trusted from the request body.
     const { accessToken } = await this.createConnectTokenUseCase.execute({
       clientUserId: request.accountId,
     });

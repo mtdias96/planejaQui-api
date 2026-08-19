@@ -1,5 +1,5 @@
 import { UnitOfWork, TransactionContext } from '@application/contracts/UnitOfWork.js';
-import { InvalidRefreshTokenError } from '@application/errors/InvalidRefreshTokenError.js';
+import { InvalidRefreshTokenError } from '@application/errors/auth/InvalidRefreshTokenError.js';
 import { RefreshTokensRepository } from '@infra/database/drizzle/repositories/RefreshTokensRepository.js';
 import { TokenService } from '@infra/security/TokenService.js';
 import { AppConfig } from '@shared/config/AppConfig.js';

@@ -1,7 +1,7 @@
 import { Controller } from '@application/contracts/Controller.js';
-import { Schema } from '@kernel/decorators/Schema.js';
 import { HandlePluggyWebhookUseCase } from '@application/useCases/pluggy/HandlePluggyWebhookUseCase.js';
-import { pluggyWebhookSchema, PluggyWebhookBody } from './schemas/pluggyWebhookSchema.js';
+import { Schema } from '@kernel/decorators/Schema.js';
+import { PluggyWebhookBody, pluggyWebhookSchema } from './schemas/pluggyWebhookSchema.js';
 
 @Schema(pluggyWebhookSchema)
 export class PluggyWebhookController extends Controller<'public', PluggyWebhookController.Response> {
@@ -17,19 +17,15 @@ export class PluggyWebhookController extends Controller<'public', PluggyWebhookC
     const body = request.body;
 
     // eslint-disable-next-line no-console
-    console.log('[pluggy] webhook received', {
+    console.log('[pluggy:webhook]', {
       event: body.event,
       eventId: body.eventId,
       itemId: body.itemId,
-      clientUserId: body.clientUserId,
       triggeredBy: body.triggeredBy,
-      payload: body,
     });
 
     const result = await this.handlePluggyWebhookUseCase.execute({ payload: body });
 
-    // Pluggy needs a 2XX within 5s or it redelivers — always answer 200 for a
-    // delivery we understood, even when there was nothing to link.
     return {
       statusCode: 200,
       body: { received: true, ...result },

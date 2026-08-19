@@ -1,7 +1,7 @@
 import { DatabaseConnection, DbClient } from '../connection.js';
 import { DbTransaction } from '../DrizzleUnitOfWork.js';
 import { TransactionContext } from '@application/contracts/UnitOfWork.js';
-import { refreshTokens, RefreshToken, NewRefreshToken } from '../schemas/refreshTokens.js';
+import { refreshTokens, RefreshToken, NewRefreshToken } from '../schemas/auth/refreshTokens.js';
 import { eq, lt } from 'drizzle-orm';
 
 export class RefreshTokensRepository {

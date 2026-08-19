@@ -2,9 +2,9 @@ import { eq, sql, and, or, desc } from 'drizzle-orm';
 import { DatabaseConnection, DbClient } from '../../connection.js';
 import { DbTransaction } from '../../DrizzleUnitOfWork.js';
 import { TransactionContext } from '@application/contracts/UnitOfWork.js';
-import { pluggyTransactions, PluggyTransaction, NewPluggyTransaction } from '../../schemas/pluggyTransactions.js';
-import { pluggyAccounts } from '../../schemas/pluggyAccounts.js';
-import { pluggyItems } from '../../schemas/pluggyItems.js';
+import { pluggyTransactions, PluggyTransaction, NewPluggyTransaction } from '../../schemas/pluggy/pluggyTransactions.js';
+import { pluggyAccounts } from '../../schemas/pluggy/pluggyAccounts.js';
+import { pluggyItems } from '../../schemas/pluggy/pluggyItems.js';
 
 export class PluggyTransactionsRepository {
   static inject = [DatabaseConnection];

@@ -5,7 +5,7 @@ import {
   pluggyWebhookEvents,
   PluggyWebhookEvent,
   NewPluggyWebhookEvent,
-} from '../../schemas/pluggyWebhookEvents.js';
+} from '../../schemas/pluggy/pluggyWebhookEvents.js';
 
 export class PluggyWebhookEventsRepository {
   static inject = [DatabaseConnection];

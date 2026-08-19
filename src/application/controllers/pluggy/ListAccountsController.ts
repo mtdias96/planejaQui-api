@@ -11,8 +11,6 @@ export class ListAccountsController extends Controller<'private', ListAccountsCo
   protected override async handle(
     request: Controller.Request<'private'>,
   ): Promise<Controller.Response<ListAccountsController.Response>> {
-    // No itemId comes from the request: the caller's connections are looked up
-    // from our own table, so nobody can read someone else's item.
     const result = await this.listAccountsUseCase.execute({
       userId: request.accountId,
     });
