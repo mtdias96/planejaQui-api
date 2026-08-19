@@ -1,5 +1,6 @@
 import { Controller } from '@application/contracts/Controller.js';
 import { ListTransactionsUseCase } from '@application/useCases/pluggy/ListTransactionsUseCase.js';
+import { listTransactionsQuerySchema } from './schemas/listTransactionsSchema.js';
 
 export class ListTransactionsController extends Controller<'private', ListTransactionsController.Response> {
   static inject = [ListTransactionsUseCase];
@@ -11,11 +12,17 @@ export class ListTransactionsController extends Controller<'private', ListTransa
   protected override async handle(
     request: Controller.Request<'private'>,
   ): Promise<Controller.Response<ListTransactionsController.Response>> {
-    const accountId = request.queryParams?.accountId;
+    const query = listTransactionsQuerySchema.parse(request.queryParams ?? {});
 
     const result = await this.listTransactionsUseCase.execute({
       userId: request.accountId,
-      accountId: typeof accountId === 'string' ? accountId : undefined,
+      accountId: query.accountId,
+      from: query.from,
+      to: query.to,
+      status: query.status,
+      limit: query.limit,
+      offset: query.offset,
+      sync: query.sync,
     });
 
     return {

@@ -24,6 +24,18 @@ describe('pluggy routes', () => {
     expect(res.status).toBe(401);
   });
 
+  it('requires authentication on GET /pluggy/transactions', async () => {
+    const res = await pluggyRoutes.request('/pluggy/transactions', { method: 'GET' });
+
+    expect(res.status).toBe(401);
+  });
+
+  it('requires authentication on GET /pluggy/transactions/summary', async () => {
+    const res = await pluggyRoutes.request('/pluggy/transactions/summary', { method: 'GET' });
+
+    expect(res.status).toBe(401);
+  });
+
   it('requires the shared secret on the public webhook route', async () => {
     const res = await pluggyRoutes.request('/pluggy/webhook', {
       method: 'POST',
