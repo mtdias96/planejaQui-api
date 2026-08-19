@@ -1,4 +1,4 @@
-import { eq, sql, getTableColumns } from 'drizzle-orm';
+import { eq, sql, inArray, getTableColumns } from 'drizzle-orm';
 import { DatabaseConnection, DbClient } from '../../connection.js';
 import { DbTransaction } from '../../DrizzleUnitOfWork.js';
 import { TransactionContext } from '@application/contracts/UnitOfWork.js';
@@ -47,7 +47,7 @@ export class PluggyAccountsRepository {
     }
 
     const db = this.getDb(tx);
-    return db
+    const updated = await db
       .insert(pluggyAccounts)
       .values(accounts)
       .onConflictDoUpdate({
@@ -64,9 +64,59 @@ export class PluggyAccountsRepository {
           owner: sql`excluded.owner`,
           taxNumber: sql`excluded.tax_number`,
           raw: sql`excluded.raw`,
-          updatedAt: new Date(),
+          updatedAt: sql`now()`,
         },
+        // Evita reescrever linhas idênticas: a conta é reingerida a cada webhook e o `raw`
+        // é grande, então updates no-op só gerariam tuplas mortas e pressão de autovacuum.
+        setWhere: sql`
+          ${pluggyAccounts.itemId} IS DISTINCT FROM excluded.item_id OR
+          ${pluggyAccounts.type} IS DISTINCT FROM excluded.type OR
+          ${pluggyAccounts.subtype} IS DISTINCT FROM excluded.subtype OR
+          ${pluggyAccounts.name} IS DISTINCT FROM excluded.name OR
+          ${pluggyAccounts.marketingName} IS DISTINCT FROM excluded.marketing_name OR
+          ${pluggyAccounts.number} IS DISTINCT FROM excluded.number OR
+          ${pluggyAccounts.balance} IS DISTINCT FROM excluded.balance OR
+          ${pluggyAccounts.currencyCode} IS DISTINCT FROM excluded.currency_code OR
+          ${pluggyAccounts.owner} IS DISTINCT FROM excluded.owner OR
+          ${pluggyAccounts.taxNumber} IS DISTINCT FROM excluded.tax_number
+        `,
       })
       .returning();
+
+    if (updated.length === accounts.length) {
+      return updated;
+    }
+
+    // `setWhere` suprime o RETURNING das linhas inalteradas; relê-las mantém o contrato
+    // do método (devolver todas as contas enviadas) sem reescrever nada.
+    const untouched = await db
+      .select()
+      .from(pluggyAccounts)
+      .where(inArray(
+        pluggyAccounts.pluggyAccountId,
+        accounts.map(account => account.pluggyAccountId),
+      ));
+
+    const byId = new Map(untouched.map(row => [row.pluggyAccountId, row]));
+    for (const row of updated) {
+      byId.set(row.pluggyAccountId, row);
+    }
+
+    return accounts
+      .map(account => byId.get(account.pluggyAccountId))
+      .filter((row): row is PluggyAccount => row !== undefined);
+  }
+
+  /** Avança a marca d'água da ingestão incremental de transações da conta. */
+  async markTransactionsSyncedThrough(
+    accountId: string,
+    syncedThrough: Date,
+    tx?: TransactionContext,
+  ): Promise<void> {
+    const db = this.getDb(tx);
+    await db
+      .update(pluggyAccounts)
+      .set({ transactionsSyncedThrough: syncedThrough })
+      .where(eq(pluggyAccounts.id, accountId));
   }
 }
