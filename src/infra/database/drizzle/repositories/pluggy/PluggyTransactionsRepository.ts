@@ -119,18 +119,17 @@ export class PluggyTransactionsRepository implements IPluggyTransactionsReposito
       conditions.push(eq(pluggyTransactions.status, params.status));
     }
 
-    const isExcludedFromFlows = or(
-      inArray(sql`LOWER(${pluggyTransactions.category})`, [
-        'same person transfer',
-        'same person transfer - credit card',
-        'transfer - internal',
-        'internal transfer',
-        'credit card payment',
-        'investments',
-      ]),
-      sql`${pluggyTransactions.categoryId} LIKE '03%'`,
-      sql`${pluggyTransactions.categoryId} LIKE '04%'`,
-      sql`${pluggyTransactions.categoryId} LIKE '0506%'`,
+    const isExcludedInflow = or(
+      and(
+        eq(pluggyAccounts.type, 'CREDIT'),
+        or(
+          inArray(sql`LOWER(${pluggyTransactions.category})`, [
+            'credit card payment',
+            'same person transfer - credit card',
+          ]),
+          sql`${pluggyTransactions.categoryId} LIKE '0510%'`,
+        ),
+      ),
     );
 
     const summaryRows = await db
@@ -138,7 +137,7 @@ export class PluggyTransactionsRepository implements IPluggyTransactionsReposito
         currencyCode: pluggyTransactions.currencyCode,
         totalInflows: sql<string>`COALESCE(SUM(
           CASE
-            WHEN ${isExcludedFromFlows} THEN 0
+            WHEN ${isExcludedInflow} THEN 0
             WHEN UPPER(${pluggyTransactions.type}) = 'CREDIT' THEN ABS(${pluggyTransactions.amount})
             WHEN UPPER(${pluggyTransactions.type}) = 'DEBIT' THEN 0
             WHEN ${pluggyTransactions.amount} > 0 THEN ${pluggyTransactions.amount}
@@ -147,7 +146,6 @@ export class PluggyTransactionsRepository implements IPluggyTransactionsReposito
         ), 0)::text`,
         totalOutflows: sql<string>`COALESCE(SUM(
           CASE
-            WHEN ${isExcludedFromFlows} THEN 0
             WHEN UPPER(${pluggyTransactions.type}) = 'DEBIT' THEN ABS(${pluggyTransactions.amount})
             WHEN UPPER(${pluggyTransactions.type}) = 'CREDIT' THEN 0
             WHEN ${pluggyTransactions.amount} < 0 THEN ABS(${pluggyTransactions.amount})
@@ -156,7 +154,7 @@ export class PluggyTransactionsRepository implements IPluggyTransactionsReposito
         ), 0)::text`,
         netBalance: sql<string>`COALESCE(SUM(
           CASE
-            WHEN ${isExcludedFromFlows} THEN 0
+            WHEN ${isExcludedInflow} THEN 0
             WHEN UPPER(${pluggyTransactions.type}) = 'CREDIT' THEN ABS(${pluggyTransactions.amount})
             WHEN UPPER(${pluggyTransactions.type}) = 'DEBIT' THEN -ABS(${pluggyTransactions.amount})
             WHEN ${pluggyTransactions.amount} > 0 THEN ${pluggyTransactions.amount}
