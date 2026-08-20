@@ -1,1 +1,1 @@
-ALTER TABLE "pluggy_transactions" ADD COLUMN "category_id" text;
+ALTER TABLE "pluggy_transactions" ADD COLUMN IF NOT EXISTS "category_id" text;
