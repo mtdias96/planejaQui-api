@@ -30,12 +30,14 @@ export class GetTransactionsSummaryUseCase {
       netBalance: '0',
       transactionCount: 0,
       closingBalance: null,
+      creditCardBalance: null,
     };
 
     const isCurrentOrFuturePeriod = toDate.getTime() >= Date.now();
 
     const byCurrency: GetTransactionsSummaryUseCase.CurrencySummary[] = summaries.map(s => {
       const balanceNum = s.closingBalance !== null ? Number(s.closingBalance) : null;
+      const cardBalanceNum = s.creditCardBalance !== null && s.creditCardBalance !== undefined ? Number(s.creditCardBalance) : null;
       return {
         currencyCode: s.currencyCode,
         inflows: Number(s.totalInflows),
@@ -44,10 +46,12 @@ export class GetTransactionsSummaryUseCase {
         transactionCount: s.transactionCount,
         closingBalance: isCurrentOrFuturePeriod ? balanceNum : null,
         currentBalance: balanceNum,
+        creditCardBalance: cardBalanceNum,
       };
     });
 
     const primaryBalance = primary.closingBalance !== null ? Number(primary.closingBalance) : null;
+    const primaryCardBalance = primary.creditCardBalance !== null && primary.creditCardBalance !== undefined ? Number(primary.creditCardBalance) : null;
 
     return {
       period: {
@@ -61,6 +65,7 @@ export class GetTransactionsSummaryUseCase {
       transactionCount: primary.transactionCount,
       closingBalance: isCurrentOrFuturePeriod ? primaryBalance : null,
       currentBalance: primaryBalance,
+      creditCardBalance: primaryCardBalance,
       currencyCode: primary.currencyCode,
       byCurrency,
     };
@@ -110,6 +115,7 @@ export namespace GetTransactionsSummaryUseCase {
     transactionCount: number;
     closingBalance: number | null;
     currentBalance: number | null;
+    creditCardBalance: number | null;
   };
 
   export type Output = {
@@ -120,6 +126,7 @@ export namespace GetTransactionsSummaryUseCase {
     transactionCount: number;
     closingBalance: number | null;
     currentBalance: number | null;
+    creditCardBalance: number | null;
     currencyCode: string;
     byCurrency: CurrencySummary[];
   };

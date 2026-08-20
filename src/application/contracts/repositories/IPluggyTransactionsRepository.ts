@@ -9,6 +9,7 @@ export type CurrencyFinancialSummary = {
   netBalance: string;
   transactionCount: number;
   closingBalance: string | null;
+  creditCardBalance?: string | null;
 };
 
 export type FinancialSummaryParams = {

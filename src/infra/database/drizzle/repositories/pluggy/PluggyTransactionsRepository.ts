@@ -1,4 +1,4 @@
-import { eq, sql, and, or, desc, gte, lte } from 'drizzle-orm';
+import { eq, sql, and, or, desc, gte, lte, inArray } from 'drizzle-orm';
 import { DatabaseConnection, DbClient } from '../../connection.js';
 import { DbTransaction } from '../../DrizzleUnitOfWork.js';
 import { TransactionContext } from '@application/contracts/UnitOfWork.js';
@@ -119,11 +119,26 @@ export class PluggyTransactionsRepository implements IPluggyTransactionsReposito
       conditions.push(eq(pluggyTransactions.status, params.status));
     }
 
+    const isExcludedFromFlows = or(
+      inArray(sql`LOWER(${pluggyTransactions.category})`, [
+        'same person transfer',
+        'same person transfer - credit card',
+        'transfer - internal',
+        'internal transfer',
+        'credit card payment',
+        'investments',
+      ]),
+      sql`${pluggyTransactions.categoryId} LIKE '03%'`,
+      sql`${pluggyTransactions.categoryId} LIKE '04%'`,
+      sql`${pluggyTransactions.categoryId} LIKE '0506%'`,
+    );
+
     const summaryRows = await db
       .select({
         currencyCode: pluggyTransactions.currencyCode,
         totalInflows: sql<string>`COALESCE(SUM(
           CASE
+            WHEN ${isExcludedFromFlows} THEN 0
             WHEN UPPER(${pluggyTransactions.type}) = 'CREDIT' THEN ABS(${pluggyTransactions.amount})
             WHEN UPPER(${pluggyTransactions.type}) = 'DEBIT' THEN 0
             WHEN ${pluggyTransactions.amount} > 0 THEN ${pluggyTransactions.amount}
@@ -132,6 +147,7 @@ export class PluggyTransactionsRepository implements IPluggyTransactionsReposito
         ), 0)::text`,
         totalOutflows: sql<string>`COALESCE(SUM(
           CASE
+            WHEN ${isExcludedFromFlows} THEN 0
             WHEN UPPER(${pluggyTransactions.type}) = 'DEBIT' THEN ABS(${pluggyTransactions.amount})
             WHEN UPPER(${pluggyTransactions.type}) = 'CREDIT' THEN 0
             WHEN ${pluggyTransactions.amount} < 0 THEN ABS(${pluggyTransactions.amount})
@@ -140,6 +156,7 @@ export class PluggyTransactionsRepository implements IPluggyTransactionsReposito
         ), 0)::text`,
         netBalance: sql<string>`COALESCE(SUM(
           CASE
+            WHEN ${isExcludedFromFlows} THEN 0
             WHEN UPPER(${pluggyTransactions.type}) = 'CREDIT' THEN ABS(${pluggyTransactions.amount})
             WHEN UPPER(${pluggyTransactions.type}) = 'DEBIT' THEN -ABS(${pluggyTransactions.amount})
             WHEN ${pluggyTransactions.amount} > 0 THEN ${pluggyTransactions.amount}
@@ -155,12 +172,13 @@ export class PluggyTransactionsRepository implements IPluggyTransactionsReposito
       .groupBy(pluggyTransactions.currencyCode)
       .orderBy(sql`(${pluggyTransactions.currencyCode} = 'BRL') DESC`, desc(sql`COUNT(*)`));
 
-    // Authoritative balance read directly from pluggy_accounts, grouped by coalesced currency
+    // Authoritative bank balance and credit card balance read directly from pluggy_accounts
     const currencyExpr = sql<string>`COALESCE(${pluggyAccounts.currencyCode}, 'BRL')`;
     const accountBalanceRows = await db
       .select({
         currencyCode: currencyExpr,
-        totalBalance: sql<string>`COALESCE(SUM(${pluggyAccounts.balance}), 0)::text`,
+        bankBalance: sql<string>`COALESCE(SUM(CASE WHEN ${pluggyAccounts.type} != 'CREDIT' THEN ${pluggyAccounts.balance} ELSE 0 END), 0)::text`,
+        creditCardBalance: sql<string>`COALESCE(SUM(CASE WHEN ${pluggyAccounts.type} = 'CREDIT' THEN ${pluggyAccounts.balance} ELSE 0 END), 0)::text`,
       })
       .from(pluggyAccounts)
       .innerJoin(pluggyItems, eq(pluggyAccounts.itemId, pluggyItems.id))
@@ -177,20 +195,24 @@ export class PluggyTransactionsRepository implements IPluggyTransactionsReposito
       )
       .groupBy(currencyExpr);
 
-    const balancesByCurrency = new Map<string, string>();
+    const bankBalancesByCurrency = new Map<string, string>();
+    const creditCardBalancesByCurrency = new Map<string, string>();
     for (const row of accountBalanceRows) {
-      balancesByCurrency.set(row.currencyCode, row.totalBalance);
+      bankBalancesByCurrency.set(row.currencyCode, row.bankBalance);
+      creditCardBalancesByCurrency.set(row.currencyCode, row.creditCardBalance);
     }
 
     if (summaryRows.length === 0) {
-      const defaultBalance = balancesByCurrency.get('BRL') ?? null;
+      const defaultBankBalance = bankBalancesByCurrency.get('BRL') ?? null;
+      const defaultCardBalance = creditCardBalancesByCurrency.get('BRL') ?? null;
       return [{
         currencyCode: 'BRL',
         totalInflows: '0',
         totalOutflows: '0',
         netBalance: '0',
         transactionCount: 0,
-        closingBalance: defaultBalance,
+        closingBalance: defaultBankBalance,
+        creditCardBalance: defaultCardBalance,
       }];
     }
 
@@ -200,7 +222,8 @@ export class PluggyTransactionsRepository implements IPluggyTransactionsReposito
       totalOutflows: row.totalOutflows,
       netBalance: row.netBalance,
       transactionCount: row.transactionCount,
-      closingBalance: balancesByCurrency.get(row.currencyCode) ?? null,
+      closingBalance: bankBalancesByCurrency.get(row.currencyCode) ?? null,
+      creditCardBalance: creditCardBalancesByCurrency.get(row.currencyCode) ?? null,
     }));
   }
 
